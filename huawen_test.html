@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>小一小二华文测验</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600&family=Noto+Serif+SC:wght@500;700&display=swap">
+<style>
+/* Layout: one exercise sheet at a time, like a 习字本 page — tabs on top, a single gridded card, red-pen marking */
+:root{
+  --bg:#f3f6f4; --paper:#ffffff; --fg:#1d2925; --muted:#5d6e67; --line:#d5e0da;
+  --grid:#3d8a67; --grid-soft:#9cc9b2; --ink:#1d2925; --red:#cf3b26; --red-soft:#fbe6e2;
+  --ok:#2f7d55; --ok-soft:#e1f2e8; --chip:#e8efeb;
+  --f-ui:"Lexend",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-han:"Kaiti SC","STKaiti","KaiTi","BiauKai","Noto Serif SC","Songti SC",serif;
+  --f-cn-ui:"Noto Serif SC","PingFang SC","Microsoft YaHei",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111715; --paper:#19221f; --fg:#e6eeea; --muted:#9db0a7; --line:#2c3a35;
+  --grid:#5fb48b; --grid-soft:#2f5745; --ink:#eef4f1; --red:#ff7b66; --red-soft:#3a201c;
+  --ok:#6fd19e; --ok-soft:#1c3328; --chip:#22302b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111715; --paper:#19221f; --fg:#e6eeea; --muted:#9db0a7; --line:#2c3a35;
+  --grid:#5fb48b; --grid-soft:#2f5745; --ink:#eef4f1; --red:#ff7b66; --red-soft:#3a201c;
+  --ok:#6fd19e; --ok-soft:#1c3328; --chip:#22302b; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-ui);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-direction:column;gap:6px}
+h1{font-family:var(--f-cn-ui);font-weight:700;font-size:clamp(26px,6vw,34px);margin:0;letter-spacing:.02em;text-wrap:balance}
+h1 span{color:var(--grid)}
+.sub{color:var(--muted);margin:0;max-width:62ch}
+.controls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ctl>label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.seg{display:inline-flex;background:var(--chip);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;color:var(--fg);font:inherit;font-size:14px;padding:6px 13px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--paper);color:var(--grid);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+nav.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);overflow-x:auto}
+nav.tabs button{border:0;background:none;font:inherit;color:var(--muted);padding:10px 14px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;font-size:15px}
+nav.tabs button .cn{font-family:var(--f-cn-ui);font-weight:700;margin-right:6px}
+nav.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--grid)}
+nav.tabs .badge{display:inline-block;min-width:20px;padding:0 6px;border-radius:999px;background:var(--red);color:var(--paper);font-size:12px;margin-left:4px;text-align:center}
+.sheet{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:22px clamp(16px,4vw,28px);display:flex;flex-direction:column;gap:18px}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.bar{height:6px;background:var(--chip);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--grid);width:0;transition:width .3s}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{font:inherit;font-size:15px;border-radius:10px;padding:10px 16px;cursor:pointer;border:1.5px solid var(--line);background:var(--paper);color:var(--fg);display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--grid)}
+.btn.primary{background:var(--grid);border-color:var(--grid);color:var(--paper);font-weight:600}
+.btn.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:600}
+.btn.bad{background:var(--red-soft);border-color:var(--red);color:var(--red);font-weight:600}
+.btn.big{font-size:17px;padding:14px 22px}
+.btn svg{width:20px;height:20px;flex:none}
+:focus-visible{outline:3px solid var(--grid);outline-offset:2px}
+.hint{color:var(--muted);font-size:13px}
+.note{background:var(--red-soft);color:var(--fg);border-radius:10px;padding:10px 14px;font-size:14px}
+.peek{font-family:var(--f-han);font-size:22px;color:var(--muted)}
+.padwrap{width:100%;display:flex;justify-content:center}
+canvas#pad{touch-action:none;cursor:crosshair;border-radius:4px;max-width:100%}
+.answer{border-top:2px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:12px}
+.tzg{display:flex;flex-wrap:wrap;gap:0}
+.tzg span{width:76px;height:76px;display:grid;place-items:center;font-family:var(--f-han);font-size:54px;color:var(--ink);border:2px solid var(--grid);margin-left:-2px;
+  background:
+   linear-gradient(var(--grid-soft),var(--grid-soft)) center/100% 1px no-repeat,
+   linear-gradient(var(--grid-soft),var(--grid-soft)) center/1px 100% no-repeat}
+.tzg span:first-child{margin-left:0}
+.py{font-size:20px;color:var(--grid);font-weight:500}
+.en{color:var(--muted)}
+.sent{font-family:var(--f-cn-ui);font-size:18px;line-height:1.8}
+.sent b{color:var(--red);font-weight:700}
+.q-type{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--grid);font-weight:600}
+.q-prompt{font-family:var(--f-cn-ui);font-size:clamp(19px,4.6vw,23px);line-height:1.8}
+.q-word{font-family:var(--f-han);font-size:clamp(48px,12vw,64px);line-height:1.2}
+.q-blank{display:inline-block;min-width:3.2em;border-bottom:2px solid var(--fg);margin:0 4px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:440px){.opts{grid-template-columns:1fr}}
+.opt{font:inherit;text-align:left;padding:14px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);color:var(--fg);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0}
+.opt.han{font-family:var(--f-han);font-size:28px}
+.opt:hover:not(:disabled){border-color:var(--grid)}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--red);background:var(--red-soft)}
+.mark{font-family:var(--f-ui);font-size:22px;font-weight:600}
+.opt.right .mark{color:var(--ok)} .opt.wrong .mark{color:var(--red)}
+.score{display:flex;align-items:baseline;gap:10px}
+.score .n{font-family:var(--f-cn-ui);font-size:56px;font-weight:700;color:var(--red);font-variant-numeric:tabular-nums;line-height:1}
+.score .of{font-size:20px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--chip);border-radius:10px;padding:6px 12px;display:flex;flex-direction:column;line-height:1.3}
+.chip b{font-family:var(--f-han);font-size:24px;font-weight:400}
+.chip small{color:var(--muted);font-size:12px}
+textarea{width:100%;min-height:150px;font:inherit;font-family:var(--f-cn-ui);font-size:16px;padding:12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);resize:vertical}
+h2{font-family:var(--f-cn-ui);font-size:20px;margin:0}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);cursor:pointer}
+.toggle input{width:18px;height:18px;accent-color:var(--grid)}
+footer{color:var(--muted);font-size:12.5px;max-width:65ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <h1>小一小二 <span>华文测验</span></h1>
+    <p class="sub">Primary 1–2 Chinese words. <b>听写</b> checks your child can write each word; <b>理解</b> checks they know what it means and how to use it.</p>
+  </header>
+
+  <div class="controls">
+    <div class="ctl"><label>Level</label>
+      <div class="seg" id="lvl">
+        <button data-v="1" aria-pressed="false">小一 P1</button>
+        <button data-v="2" aria-pressed="false">小二 P2</button>
+        <button data-v="all" aria-pressed="true">全部 Both</button>
+      </div>
+    </div>
+    <div class="ctl"><label>Words</label>
+      <div class="seg" id="cnt">
+        <button data-v="10" aria-pressed="true">10</button>
+        <button data-v="20" aria-pressed="false">20</button>
+        <button data-v="999" aria-pressed="false">全部 All</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="dict" aria-selected="true"><span class="cn">听写</span>Dictation</button>
+    <button role="tab" data-tab="quiz" aria-selected="false"><span class="cn">理解</span>Understanding</button>
+    <button role="tab" data-tab="rev" aria-selected="false"><span class="cn">复习</span>To revise<span class="badge" id="revBadge" hidden>0</span></button>
+    <button role="tab" data-tab="own" aria-selected="false"><span class="cn">我的词语</span>School list</button>
+  </nav>
+
+  <!-- DICTATION -->
+  <section class="sheet" id="tab-dict">
+    <div id="dictRun">
+      <div class="meta"><span id="dProg">第 1 / 10 个词</span><span id="dScore">✓ 0</span></div>
+      <div class="bar" style="margin-top:8px"><i id="dBar"></i></div>
+    </div>
+    <div id="dictBody" style="display:flex;flex-direction:column;gap:18px">
+      <div id="noVoice" class="note" hidden>This device has no Chinese voice installed, so the words can't be read aloud. Tick “Show word to parent” and read each word out yourself.</div>
+      <div class="row">
+        <button class="btn primary big" id="sayWord"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>读词语 Say word</button>
+        <button class="btn" id="saySent">读句子 Say sentence</button>
+      </div>
+      <div class="row" style="justify-content:space-between">
+        <label class="toggle"><input type="checkbox" id="peekT">Show word to parent</label>
+        <span class="peek" id="peek" hidden></span>
+      </div>
+      <div>
+        <p class="hint" style="margin:0 0 8px">Write the word in the boxes below (finger, stylus or mouse) — or on paper.</p>
+        <div class="padwrap"><canvas id="pad" aria-label="田字格 writing pad"></canvas></div>
+      </div>
+      <div class="row">
+        <button class="btn" id="clearPad">擦掉 Clear</button>
+        <button class="btn primary" id="reveal">看答案 Check answer</button>
+      </div>
+      <div class="answer" id="dAns" hidden>
+        <div class="tzg" id="dTzg"></div>
+        <div><span class="py" id="dPy"></span> <span class="en" id="dEn"></span></div>
+        <div class="sent" id="dSent"></div>
+        <div class="row">
+          <button class="btn ok" id="markOk">✓ 写对了 Correct</button>
+          <button class="btn bad" id="markBad">✗ 写错了 Wrong</button>
+        </div>
+      </div>
+    </div>
+    <div id="dictDone" hidden style="display:flex;flex-direction:column;gap:16px"></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="sheet" id="tab-quiz" hidden>
+    <div id="quizRun">
+      <div class="meta"><span id="qProg">第 1 / 10 题</span><span id="qScore">✓ 0</span></div>
+      <div class="bar" style="margin-top:8px"><i id="qBar"></i></div>
+    </div>
+    <div id="quizBody" style="display:flex;flex-direction:column;gap:16px">
+      <div class="q-type" id="qType"></div>
+      <div class="q-prompt" id="qPrompt"></div>
+      <div class="opts" id="qOpts"></div>
+      <div class="answer" id="qAns" hidden>
+        <div><span class="py" id="qPy"></span> <span class="en" id="qEn"></span></div>
+        <div class="sent" id="qSent"></div>
+        <div class="row"><button class="btn primary" id="qNext">下一题 Next</button></div>
+      </div>
+    </div>
+    <div id="quizDone" hidden style="display:flex;flex-direction:column;gap:16px"></div>
+  </section>
+
+  <!-- REVISE -->
+  <section class="sheet" id="tab-rev" hidden>
+    <h2>要复习的词语 Words to revise</h2>
+    <p class="hint" style="margin:0">Every word your child gets wrong in either test lands here. Practise them until they come off the list.</p>
+    <div class="chips" id="revList"></div>
+    <div class="row">
+      <button class="btn primary" id="revDict">听写这些词 Dictate these</button>
+      <button class="btn" id="revClear">清除 Clear list</button>
+    </div>
+  </section>
+
+  <!-- OWN LIST -->
+  <section class="sheet" id="tab-own" hidden>
+    <h2>用学校的听写单 Use your school’s spelling list</h2>
+    <p class="hint" style="margin:0">Schools give a 听写 list each week. Type or paste it here, one word per line. Adding pinyin and meaning is optional:<br><span style="font-family:var(--f-cn-ui)">书包 | shū bāo | schoolbag</span></p>
+    <textarea id="ownTxt" placeholder="书包 | shū bāo | schoolbag&#10;铅笔&#10;认真 | rèn zhēn | attentive"></textarea>
+    <div class="row">
+      <button class="btn primary" id="ownGo">开始听写 Start dictation</button>
+      <span class="hint" id="ownMsg"></span>
+    </div>
+  </section>
+
+  <footer>Word bank: 112 common Primary 1–2 words in the style of the MOE 欢乐伙伴 / 乐学善用 textbooks. Each school’s weekly list differs slightly, so use the “School list” tab for the exact words your child is tested on. Answers are marked by you in Dictation; the Understanding test marks itself.</footer>
+</div>
+
+<script>
+const RAW=`大人|dà rén|adult|n|1|小孩子过马路要跟着＿＿。
+上学|shàng xué|go to school|v|1|我每天早上六点半起床去＿＿。
+老师|lǎo shī|teacher|n|1|＿＿在课室里教我们写字。
+同学|tóng xué|classmate|n|1|下课了，我和＿＿一起去食堂。
+我们|wǒ men|we, us|pron|1|＿＿是好朋友。
+他们|tā men|they, them|pron|1|＿＿在操场上踢足球。
+爸爸|bà ba|dad|n|1|＿＿开车送我去学校。
+妈妈|mā ma|mum|n|1|＿＿做的饭菜很好吃。
+哥哥|gē ge|older brother|n|1|＿＿比我大三岁。
+姐姐|jiě jie|older sister|n|1|＿＿教我画画。
+弟弟|dì di|younger brother|n|1|我的＿＿今年三岁。
+妹妹|mèi mei|younger sister|n|1|＿＿喜欢抱着她的小熊睡觉。
+朋友|péng you|friend|n|1|我在新学校交了很多＿＿。
+学校|xué xiào|school|n|1|我的＿＿有一个很大的操场。
+家人|jiā rén|family members|n|1|周末我和＿＿去海边玩。
+早上|zǎo shang|morning|t|1|＿＿七点半，我们开始上课。
+中午|zhōng wǔ|noon|t|1|＿＿十二点，我们吃午饭。
+下午|xià wǔ|afternoon|t|1|今天＿＿我要去上游泳课。
+晚上|wǎn shang|evening, night|t|1|＿＿九点，我上床睡觉。
+月亮|yuè liang|moon|n|1|晚上，＿＿挂在天上。
+太阳|tài yáng|sun|n|1|＿＿出来了，天亮了。
+星星|xīng xing|stars|n|1|天上的＿＿一闪一闪的。
+小鸟|xiǎo niǎo|little bird|n|1|树上有一只＿＿在唱歌。
+小狗|xiǎo gǒu|puppy|n|1|我家的＿＿会摇尾巴。
+大象|dà xiàng|elephant|n|1|动物园里的＿＿有长长的鼻子。
+水果|shuǐ guǒ|fruit|n|1|多吃＿＿对身体好。
+苹果|píng guǒ|apple|n|1|这个红红的＿＿又甜又脆。
+米饭|mǐ fàn|cooked rice|n|1|我午餐吃了一碗＿＿。
+面包|miàn bāo|bread|n|1|妈妈早餐给我吃＿＿。
+牛奶|niú nǎi|milk|n|1|我每天喝一杯＿＿。
+喝水|hē shuǐ|drink water|v|1|天气很热，我们要多＿＿。
+吃饭|chī fàn|eat a meal|v|1|＿＿前要先洗手。
+回家|huí jiā|go home|v|1|放学了，我们排队＿＿。
+开心|kāi xīn|happy|adj|1|今天是我的生日，我很＿＿。
+好看|hǎo kàn|nice-looking|adj|1|姐姐的新衣服很＿＿。
+很多|hěn duō|many, a lot|adj|1|公园里有＿＿人。
+一起|yì qǐ|together|adv|1|我们＿＿去公园玩吧。
+不要|bú yào|don't|adv|1|上课时＿＿说话。
+书包|shū bāo|schoolbag|n|1|我把书本放进＿＿里。
+铅笔|qiān bǐ|pencil|n|1|我用＿＿写字。
+上课|shàng kè|have lessons|v|1|＿＿的时候，我们要专心听讲。
+下课|xià kè|class is over|v|1|＿＿了，同学们去食堂买东西吃。
+眼睛|yǎn jing|eyes|n|1|小猫有一双大大的＿＿。
+耳朵|ěr duo|ears|n|1|小白兔的＿＿长长的。
+衣服|yī fu|clothes|n|1|下雨了，我的＿＿湿了。
+生日|shēng rì|birthday|n|1|今天是我的＿＿，妈妈买了蛋糕。
+天气|tiān qì|weather|n|1|今天＿＿很好，我们去公园玩。
+下雨|xià yǔ|to rain|v|1|＿＿了，我们要带雨伞。
+你好|nǐ hǎo|hello|phr|1|见到老师，我说：“老师，＿＿！”
+再见|zài jiàn|goodbye|phr|1|放学了，我跟老师说＿＿。
+谢谢|xiè xie|thank you|phr|1|同学借我铅笔，我对他说＿＿。
+认真|rèn zhēn|attentive, serious|adj|2|上课的时候，我们要＿＿听老师讲课。
+帮助|bāng zhù|to help|v|2|哥哥常常＿＿我做功课。
+关心|guān xīn|to care about|v|2|妈妈很＿＿我的身体。
+告诉|gào su|to tell|v|2|我把这件事＿＿了老师。
+知道|zhī dào|to know|v|2|你＿＿图书馆在哪里吗？
+已经|yǐ jīng|already|adv|2|我＿＿做完功课了。
+因为|yīn wèi|because|conj|2|＿＿下大雨，所以运动会改期了。
+所以|suǒ yǐ|so, therefore|conj|2|他生病了，＿＿今天没来上学。
+但是|dàn shì|but|conj|2|这道题很难，＿＿我没有放弃。
+非常|fēi cháng|very|adv|2|今天的天气＿＿热。
+快乐|kuài lè|happy, joyful|adj|2|祝你生日＿＿！
+生气|shēng qì|angry|adj|2|弟弟弄坏了我的玩具，我很＿＿。
+害怕|hài pà|scared|adj|2|打雷的时候，妹妹很＿＿。
+担心|dān xīn|to worry|v|2|你回家晚了，妈妈会＿＿的。
+健康|jiàn kāng|healthy|adj|2|多运动，身体才会＿＿。
+运动|yùn dòng|to exercise|v|2|我每个星期六都和爸爸去公园＿＿。
+游泳|yóu yǒng|to swim|v|2|暑假的时候，我学会了＿＿。
+比赛|bǐ sài|competition, race|n|2|我们班在跑步＿＿中得了第一名。
+公园|gōng yuán|park|n|2|＿＿里有很多大树和花草。
+图书馆|tú shū guǎn|library|n|2|我常常去＿＿借书。
+医生|yī shēng|doctor|n|2|我生病了，妈妈带我去看＿＿。
+邻居|lín jū|neighbour|n|2|住在我家隔壁的＿＿很友善。
+礼物|lǐ wù|gift, present|n|2|我送给妈妈一份母亲节＿＿。
+蛋糕|dàn gāo|cake|n|2|生日＿＿上插着七根蜡烛。
+照顾|zhào gù|to take care of|v|2|妈妈生病了，我在家＿＿她。
+打扫|dǎ sǎo|to sweep, clean up|v|2|放学后，我们一起＿＿课室。
+干净|gān jìng|clean|adj|2|课室打扫得很＿＿。
+整齐|zhěng qí|neat, tidy|adj|2|我的书桌很＿＿。
+安静|ān jìng|quiet|adj|2|图书馆里要保持＿＿。
+热闹|rè nao|lively, bustling|adj|2|新年的时候，牛车水非常＿＿。
+漂亮|piào liang|pretty|adj|2|公园里的花开得很＿＿。
+可爱|kě ài|cute, lovable|adj|2|这只小猫胖胖的，真＿＿。
+聪明|cōng míng|clever|adj|2|小明很＿＿，什么都学得很快。
+勇敢|yǒng gǎn|brave|adj|2|摔倒了，他没有哭，真＿＿。
+努力|nǔ lì|to work hard|v|2|只要＿＿学习，成绩就会进步。
+准备|zhǔn bèi|to prepare|v|2|我在＿＿明天的听写。
+记得|jì de|to remember|v|2|出门前要＿＿带钥匙。
+忘记|wàng jì|to forget|v|2|我＿＿带水壶，口很渴。
+发现|fā xiàn|to discover, notice|v|2|我＿＿树上有一个鸟窝。
+希望|xī wàng|to hope|v|2|我＿＿明天不会下雨。
+感谢|gǎn xiè|to thank|v|2|我们要＿＿老师的教导。
+排队|pái duì|to queue up|v|2|买东西的时候，大家要＿＿。
+小心|xiǎo xīn|careful|adj|2|过马路要＿＿。
+马路|mǎ lù|road|n|2|过＿＿要走斑马线。
+地铁|dì tiě|MRT, subway|n|2|我们坐＿＿去动物园。
+巴士|bā shì|bus|n|2|我每天坐＿＿上学。
+组屋|zǔ wū|HDB flat|n|2|我家住在十楼的＿＿。
+新年|xīn nián|New Year|n|2|＿＿到了，大人给我们红包。
+红包|hóng bāo|red packet|n|2|过新年，奶奶给了我一个＿＿。
+时间|shí jiān|time|n|2|＿＿到了，我们快走吧。
+功课|gōng kè|homework|n|2|我做完＿＿才去玩。
+故事|gù shi|story|n|2|爸爸每天晚上给我讲＿＿。
+问题|wèn tí|question, problem|n|2|有＿＿可以举手问老师。
+办法|bàn fǎ|way, method|n|2|我想到了一个好＿＿。
+动物|dòng wù|animal|n|2|我最喜欢的＿＿是熊猫。
+蝴蝶|hú dié|butterfly|n|2|花园里有一只＿＿在飞来飞去。
+雨伞|yǔ sǎn|umbrella|n|2|下雨了，我打开＿＿。
+窗户|chuāng hu|window|n|2|风从＿＿吹进来，很凉快。
+厨房|chú fáng|kitchen|n|2|妈妈在＿＿里煮饭。
+客厅|kè tīng|living room|n|2|我们一家人在＿＿看电视。
+宠物|chǒng wù|pet|n|2|我家的＿＿是一只小乌龟。`;
+const BANK=RAW.trim().split('\n').map(l=>{const [w,py,en,pos,lv,s]=l.split('|');return {w,py,en,pos,lv:+lv,s}});
+const GROUP={n:'N',t:'N',pron:'N',v:'V',adj:'A',adv:'X',conj:'X',phr:'X'};
+const $=id=>document.getElementById(id);
+const S={level:'all',count:10,tab:'dict'};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const pool=()=>BANK.filter(x=>S.level==='all'||x.lv==S.level);
+const pick=()=>shuffle(pool()).slice(0,S.count);
+const fill=(s,w,tag)=>s?s.replace('＿＿',tag?`<b>${w}</b>`:w):'';
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---- revise list (per-viewer convenience) ---- */
+let MISSED=[];
+try{MISSED=JSON.parse(localStorage.getItem('hw-missed')||'[]')}catch(e){MISSED=[]}
+function saveMissed(){try{localStorage.setItem('hw-missed',JSON.stringify(MISSED))}catch(e){} renderRev()}
+function addMissed(x){if(!MISSED.some(m=>m.w===x.w)){MISSED.push({w:x.w,py:x.py||'',en:x.en||'',s:x.s||''});saveMissed()}}
+function dropMissed(w){const n=MISSED.length;MISSED=MISSED.filter(m=>m.w!==w);if(MISSED.length!==n)saveMissed()}
+function renderRev(){
+  const b=$('revBadge');b.hidden=!MISSED.length;b.textContent=MISSED.length;
+  $('revList').innerHTML=MISSED.length?MISSED.map(m=>`<span class="chip"><b>${esc(m.w)}</b><small>${esc(m.py)}${m.en?' · '+esc(m.en):''}</small></span>`).join(''):'<span class="hint">Nothing to revise yet. Wrong answers will appear here.</span>';
+  $('revDict').disabled=!MISSED.length;$('revClear').disabled=!MISSED.length;
+}
+
+/* ---- speech ---- */
+let zhVoice=null,voicesLoaded=false;
+function loadVoices(){
+  if(!('speechSynthesis' in window)){$('noVoice').hidden=false;return}
+  const v=speechSynthesis.getVoices();if(!v.length)return;
+  voicesLoaded=true;
+  zhVoice=v.find(x=>/zh[-_]SG/i.test(x.lang))||v.find(x=>/zh[-_]CN/i.test(x.lang))||v.find(x=>/^zh/i.test(x.lang)&&!/HK|yue/i.test(x.lang))||v.find(x=>/^(zh|cmn)/i.test(x.lang));
+  $('noVoice').hidden=!!zhVoice;
+}
+if('speechSynthesis' in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}else{$('noVoice').hidden=false}
+function speak(t,rate=.75){
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t);u.lang=zhVoice?zhVoice.lang:'zh-CN';if(zhVoice)u.voice=zhVoice;u.rate=rate;
+  speechSynthesis.speak(u);
+}
+const canSpeak=()=>('speechSynthesis' in window)&&(!voicesLoaded||!!zhVoice);
+
+/* ---- writing pad (田字格) ---- */
+const pad=$('pad'),ctx=pad.getContext('2d');
+let strokes=[],cur=null,padN=2,PW=0,PH=0;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function setupPad(n){padN=Math.max(1,n);strokes=[];resizePad()}
+function resizePad(){
+  const avail=pad.parentElement.clientWidth||300;
+  const box=Math.max(60,Math.min(130,Math.floor(avail/padN)));
+  PW=box*padN;PH=box;const d=window.devicePixelRatio||1;
+  pad.width=PW*d;pad.height=PH*d;pad.style.width=PW+'px';pad.style.height=PH+'px';
+  ctx.setTransform(d,0,0,d,0,0);drawPad();
+}
+function drawPad(){
+  ctx.clearRect(0,0,PW,PH);
+  ctx.fillStyle=css('--paper');ctx.fillRect(0,0,PW,PH);
+  const box=PH,g=css('--grid'),gs=css('--grid-soft');
+  ctx.setLineDash([5,5]);ctx.strokeStyle=gs;ctx.lineWidth=1;
+  for(let i=0;i<padN;i++){const x=i*box;ctx.beginPath();ctx.moveTo(x+box/2,0);ctx.lineTo(x+box/2,box);ctx.moveTo(x,box/2);ctx.lineTo(x+box,box/2);ctx.stroke()}
+  ctx.setLineDash([]);ctx.strokeStyle=g;ctx.lineWidth=2;
+  ctx.strokeRect(1,1,PW-2,PH-2);
+  for(let i=1;i<padN;i++){ctx.beginPath();ctx.moveTo(i*box,0);ctx.lineTo(i*box,box);ctx.stroke()}
+  ctx.strokeStyle=css('--ink');ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=Math.max(3,box/22);
+  for(const s of strokes){ctx.beginPath();s.forEach((p,i)=>{const x=p[0]*PW,y=p[1]*PH;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});if(s.length===1)ctx.lineTo(s[0][0]*PW+.1,s[0][1]*PH);ctx.stroke()}
+}
+function pt(e){const r=pad.getBoundingClientRect();return[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]}
+pad.addEventListener('pointerdown',e=>{e.preventDefault();pad.setPointerCapture(e.pointerId);cur=[pt(e)];strokes.push(cur);drawPad()});
+pad.addEventListener('pointermove',e=>{if(!cur)return;cur.push(pt(e));drawPad()});
+['pointerup','pointercancel','pointerleave'].forEach(t=>pad.addEventListener(t,()=>cur=null));
+$('clearPad').onclick=()=>{strokes=[];drawPad()};
+let rT;addEventListener('resize',()=>{clearTimeout(rT);rT=setTimeout(resizePad,120)});
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',drawPad);
+new MutationObserver(drawPad).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* ---- dictation ---- */
+let D;
+function startDict(list){D={list,i:0,right:0,wrong:[]};renderDict()}
+function curD(){return D.list[D.i]}
+function renderDict(){
+  const done=D.i>=D.list.length;
+  $('dictBody').hidden=done;$('dictRun').hidden=done;$('dictDone').hidden=!done;
+  if(done){
+    const n=D.list.length;
+    $('dictDone').innerHTML=`<div class="score"><span class="n">${D.right}</span><span class="of">/ ${n} 写对了</span></div>
+      <p style="margin:0">${D.right===n?'太棒了！Every word written correctly.':'Words to practise again:'}</p>
+      ${D.wrong.length?`<div class="chips">${D.wrong.map(x=>`<span class="chip"><b>${esc(x.w)}</b><small>${esc(x.py||'')}</small></span>`).join('')}</div>`:''}
+      <div class="row">${D.wrong.length?'<button class="btn primary" id="dRetry">再听写错的词 Retry wrong words</button>':''}<button class="btn" id="dNew">新的听写 New dictation</button></div>`;
+    $('dRetry')&&($('dRetry').onclick=()=>startDict(shuffle(D.wrong)));
+    $('dNew').onclick=()=>startDict(pick());
+    return;
+  }
+  const x=curD();
+  $('dProg').textContent=`第 ${D.i+1} / ${D.list.length} 个词`;
+  $('dScore').textContent=`✓ ${D.right}   ✗ ${D.wrong.length}`;
+  $('dBar').style.width=(D.i/D.list.length*100)+'%';
+  $('peek').textContent=x.w+(x.py?'  '+x.py:'');$('peek').hidden=!$('peekT').checked;
+  $('saySent').hidden=!x.s;
+  $('dAns').hidden=true;$('reveal').hidden=false;
+  setupPad([...x.w].length);
+}
+$('peekT').onchange=()=>{$('peek').hidden=!$('peekT').checked};
+$('sayWord').onclick=()=>speak(curD().w+'。'+curD().w,.7);
+$('saySent').onclick=()=>speak(fill(curD().s,curD().w),.8);
+$('reveal').onclick=()=>{
+  const x=curD();
+  $('dTzg').innerHTML=[...x.w].map(c=>`<span>${esc(c)}</span>`).join('');
+  $('dPy').textContent=x.py||'';$('dEn').textContent=x.en||'';
+  $('dSent').innerHTML=x.s?fill(esc(x.s),esc(x.w),true):'';
+  $('dAns').hidden=false;$('reveal').hidden=true;
+  $('markOk').focus({preventScroll:true});$('dAns').scrollIntoView({behavior:'smooth',block:'nearest'});
+};
+$('markOk').onclick=()=>{D.right++;dropMissed(curD().w);D.i++;renderDict()};
+$('markBad').onclick=()=>{D.wrong.push(curD());addMissed(curD());D.i++;renderDict()};
+
+/* ---- understanding quiz ---- */
+let Q;
+const uniqBy=(arr,f)=>{const s=new Set;return arr.filter(a=>{const k=f(a);if(s.has(k))return false;s.add(k);return true})};
+function opts(x,cands,key){return shuffle([x,...shuffle(uniqBy(cands.filter(c=>key(c)!==key(x)),key)).slice(0,3)])}
+function makeQ(x,k){
+  const types=['mean','fill','py'];if(canSpeak())types.push('hear');
+  let t=types[k%types.length];
+  if(t==='fill'&&!x.s)t='mean';
+  const others=BANK.filter(b=>b.w!==x.w);
+  if(t==='mean')return{t,x,label:'词义 Meaning',prompt:`<div class="q-word">${x.w}</div>这个词语是什么意思？`,options:opts(x,others,o=>o.en),show:o=>esc(o.en),han:false};
+  if(t==='fill'){const g=GROUP[x.pos];let c=others.filter(b=>GROUP[b.pos]!==g);if(c.length<3)c=others;
+    return{t,x,label:'选词填空 Fill in the blank',prompt:esc(x.s).replace('＿＿','<span class="q-blank">&nbsp;</span>')+'<br><span class="hint" style="font-family:var(--f-ui)">选出最合适的词语 Pick the best word.</span>',options:opts(x,c,o=>o.w),show:o=>esc(o.w),han:true}}
+  const len=[...x.w].length;let c=others.filter(b=>[...b.w].length===len);if(c.length<3)c=others;
+  if(t==='py')return{t,x,label:'看拼音选词 Pinyin',prompt:`哪个词语的拼音是 <span class="py">${x.py}</span>？`,options:opts(x,c,o=>o.w),show:o=>esc(o.w),han:true};
+  return{t,x,label:'听音选词 Listen',prompt:`<button class="btn primary" id="qHear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg>听一听 Listen</button><div style="margin-top:8px">你听到的是哪个词语？</div>`,options:opts(x,c,o=>o.w),show:o=>esc(o.w),han:true};
+}
+function startQuiz(){Q={qs:shuffle(pick()).map(makeQ),i:0,right:0,wrong:[]};Q.qs=shuffle(Q.qs);renderQuiz()}
+function renderQuiz(){
+  const done=Q.i>=Q.qs.length;
+  $('quizBody').hidden=done;$('quizRun').hidden=done;$('quizDone').hidden=!done;
+  if(done){
+    const n=Q.qs.length;
+    $('quizDone').innerHTML=`<div class="score"><span class="n">${Q.right}</span><span class="of">/ ${n} 答对了</span></div>
+      <p style="margin:0">${Q.right===n?'全对！Your child understands every word in this set.':'These words need more practice. They have been added to 复习.'}</p>
+      ${Q.wrong.length?`<div class="chips">${Q.wrong.map(x=>`<span class="chip"><b>${esc(x.w)}</b><small>${esc(x.py)} · ${esc(x.en)}</small></span>`).join('')}</div>`:''}
+      <div class="row"><button class="btn primary" id="qNew">再做一次 New test</button></div>`;
+    $('qNew').onclick=startQuiz;return;
+  }
+  const q=Q.qs[Q.i];
+  $('qProg').textContent=`第 ${Q.i+1} / ${Q.qs.length} 题`;
+  $('qScore').textContent=`✓ ${Q.right}   ✗ ${Q.wrong.length}`;
+  $('qBar').style.width=(Q.i/Q.qs.length*100)+'%';
+  $('qType').textContent=q.label;$('qPrompt').innerHTML=q.prompt;
+  if(q.t==='hear')$('qHear').onclick=()=>speak(q.x.w,.7);
+  $('qAns').hidden=true;
+  $('qOpts').innerHTML='';
+  q.options.forEach(o=>{const b=document.createElement('button');b.className='opt'+(q.han?' han':'');b.innerHTML=`<span>${q.show(o)}</span><span class="mark"></span>`;b.onclick=()=>answer(q,o,b);$('qOpts').appendChild(b)});
+}
+function answer(q,o,btn){
+  const ok=o.w===q.x.w;
+  [...$('qOpts').children].forEach((b,i)=>{b.disabled=true;if(q.options[i].w===q.x.w){b.classList.add('right');b.querySelector('.mark').textContent='✓'}});
+  if(ok){Q.right++;dropMissed(q.x.w)}else{btn.classList.add('wrong');btn.querySelector('.mark').textContent='✗';Q.wrong.push(q.x);addMissed(q.x)}
+  $('qPy').innerHTML=`<span style="font-family:var(--f-han);font-size:30px;color:var(--fg)">${esc(q.x.w)}</span> ${esc(q.x.py)}`;
+  $('qEn').textContent=q.x.en;$('qSent').innerHTML=fill(esc(q.x.s),esc(q.x.w),true);
+  $('qAns').hidden=false;$('qNext').focus({preventScroll:true});$('qAns').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+$('qNext').onclick=()=>{Q.i++;renderQuiz()};
+
+/* ---- own list ---- */
+try{$('ownTxt').value=localStorage.getItem('hw-own')||''}catch(e){}
+$('ownGo').onclick=()=>{
+  const txt=$('ownTxt').value;try{localStorage.setItem('hw-own',txt)}catch(e){}
+  const words=[];
+  txt.split('\n').map(l=>l.trim()).filter(Boolean).forEach(l=>{
+    if(l.includes('|')){const [w,py,en]=l.split('|').map(s=>s.trim());if(w)words.push(BANK.find(b=>b.w===w)||{w,py:py||'',en:en||'',s:''})}
+    else l.split(/[,，、\s]+/).filter(Boolean).forEach(w=>words.push(BANK.find(b=>b.w===w)||{w,py:'',en:'',s:''}));
+  });
+  if(!words.length){$('ownMsg').textContent='Add at least one word first.';return}
+  $('ownMsg').textContent='';showTab('dict');startDict(words);
+};
+
+/* ---- tabs & settings ---- */
+function showTab(t){
+  S.tab=t;
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
+  ['dict','quiz','rev','own'].forEach(k=>$('tab-'+k).hidden=k!==t);
+  if(t==='dict')requestAnimationFrame(resizePad);
+}
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+function seg(id,key,cast){document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#'+id+' button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  S[key]=cast(b.dataset.v);startDict(pick());startQuiz();
+})}
+seg('lvl','level',v=>v);seg('cnt','count',v=>+v);
+$('revDict').onclick=()=>{showTab('dict');startDict(shuffle(MISSED))};
+$('revClear').onclick=()=>{MISSED=[];saveMissed()};
+
+renderRev();startDict(pick());startQuiz();
+</script>
+
+</body>
+</html>
